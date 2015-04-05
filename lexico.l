@@ -60,7 +60,7 @@ booleano "true"|"false"
 {numero}+				{return ENTERO;}
 {numero}+"."{numero}	{return DECIMAL;}
 {numero}+"+ j"{numero}+ {return COMPLEJO;}
-{caracter}({caracter}|{numero})*	{return CONSTANTE;}
+{caracter}({caracter}|{numero})*	{yylval.cadena = strdup(yytext); return CONSTANTE;}
 "\n" 					{}
 [\t\r\f]				 {}
 " "						 {}

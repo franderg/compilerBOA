@@ -1,5 +1,6 @@
 void main (void)
 {
+string a;
 int a=>7;
 string b=>2;
 int a=>2;

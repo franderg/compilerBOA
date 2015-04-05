@@ -4,25 +4,34 @@
  * Declaraciones en C *
  **********************/
  
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <math.h>
-  #include "string.h"
-  extern int yylex(void);
-  extern char *yytext;
-  extern int linea;
-  extern FILE *yyin;
-  void yyerror(char *s);
-  int yystopparser = 0;
-%}
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "string.h"
+#include "simbol_table.h" 
+extern int yylex(void);
+extern char *yytext;
+extern int linea;
+extern FILE *yyin;
+void yyerror(char *s);
+int yystopparser = 0;
 
+
+%}
+%union{
+        char *cadena;
+        int entero;     
+}
 /*************************
   Declaraciones de Bison *
  *************************/
+%token <cadena> CONSTANTE
 
-%token VOID MAIN CONSTANTE ENTERO DECIMAL BOOLEANO T_ENTERO T_DECIMAL T_BOOLEANO T_COMPLEJO ASIGNADOR SUMA RESTA MULTIPLICACION DIVISION AUMENTAR DISMINUIR MAYOR MENOR IGUAL MAYORIGUAL MENORIGUAL DIFERENTE ELSE FOR WHILE IF ELIF T_STRING COMPLEJO DEFINE ID_MACRO STRING
+%token VOID MAIN ENTERO DECIMAL BOOLEANO T_ENTERO T_DECIMAL T_BOOLEANO T_COMPLEJO ASIGNADOR SUMA RESTA MULTIPLICACION DIVISION AUMENTAR DISMINUIR MAYOR MENOR IGUAL MAYORIGUAL MENORIGUAL DIFERENTE ELSE FOR WHILE IF ELIF T_STRING COMPLEJO DEFINE ID_MACRO STRING
 
 %start programa
+
+%type <entero> tipodato
 
 %%
 /***********************
@@ -31,7 +40,9 @@
 
 
 
-programa:		principal macro | principal | error principal;
+programa:       principal macro {visualizacion();}
+                | principal {visualizacion();}
+                | error principal {visualizacion();};
 
 principal:		VOID MAIN '(' VOID ')' '{' lineascodigo '}';
 
@@ -41,9 +52,13 @@ macro:			DEFINE ID_MACRO valor macro | DEFINE ID_MACRO valor;
 lineascodigo:	  lineacodigo 
                 | /* vacio */;
 
-lineacodigo:	lineacodigo linea | linea;
+lineacodigo:    lineacodigo linea 
+                | linea;
 
-linea:			invocarmetodo ';'| crearvariable ';' | cambiarvalor ';' | buclecondicion;
+linea:          invocarmetodo ';'
+                | crearvariable ';' 
+                | cambiarvalor ';' 
+                | buclecondicion;
 
 invocarmetodo:	CONSTANTE '(' parametros ')';
 
@@ -55,9 +70,15 @@ parenvio:			valor | CONSTANTE;
 
 valor:			ENTERO | DECIMAL | BOOLEANO | STRING | COMPLEJO;
 
-crearvariable:	tipodato CONSTANTE | tipodato CONSTANTE asignarvalor;
+/* produccion para crear una variable */
+crearvariable:    tipodato CONSTANTE  {ins_inicio_lista($2, $1, 0);}  /* crear variable */ 
+                  | tipodato CONSTANTE asignarvalor;  /* crear variable constante */
 
-tipodato:		T_ENTERO | T_DECIMAL | T_BOOLEANO | T_STRING | T_COMPLEJO;
+tipodato:         T_ENTERO      {$$=1;}
+                  | T_DECIMAL   {$$=2;}
+                  | T_BOOLEANO  {$$=3;}
+                  | T_STRING    {$$=4;}
+                  | T_COMPLEJO  {$$=5;};
 
 asignarvalor:	ASIGNADOR opasignar | ASIGNADOR valor | ASIGNADOR CONSTANTE | error ASIGNADOR;
 
