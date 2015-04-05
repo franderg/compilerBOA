@@ -1,0 +1,110 @@
+
+reglas < >, mayusculas Tokens
+
+
+<programa>    -----> VOID MAIN (VOID){<lineascodigos>}
+
+<lineascodigos> ----> <lineacodigo> | vacio
+
+<lineacodigo>  ---> <lineacodigo> <linea> | <linea>
+
+<linea>   ---->  	<invocarmetodo>; 
+					| <crearvariable>;
+					| <cambiarvalor>;
+					| <buclecondicion>
+
+<invocarmetodo>  ---> NOMBRECAMPO(<parametrosenvio>)
+
+<parametrosenvio>  ---> <parenvio> | vacio
+
+<parenvio>  --->  <parenvio>,<penvio> | <penvio>
+
+<penvio>   --->  <valor>   | NOMBRECAMPO
+
+<valor>  ----> ENTERO | DECIMAL | BOOLEANO
+
+<crearvariable>  ----> <tipodato> NOMBRECAMPO
+						| <tipodato> NOMBRECAMPO <asignarvalor>
+
+<tipodato> --->   T_ENTERO | T_DECIMAL | T_BOOLEANO | T_CADENA
+
+<asignarvalor>  ----> ASIGNADOR <operasignacion>  
+						| ASIGNADOR  <valor>
+						| ASIGNADOR NOMBRECAMPO
+						
+<operasignacion>  ---> <aritmetico>
+						| <invocarmetodo>
+						| <incredismivariable>
+						
+<aritmetico>  ---> 	<oprcomun> 
+					| <oprcomun> <oprcomplemento>
+						
+<oprcomun>   ---> <valor> <tipoopr> <valor>
+					| <valor> <tipoopr> NOMBRECAMPO
+					| NOMBRECAMPO <tipoopr> <valor>
+					| NOMBRECAMPO <tipoopr> NOMBRECAMPO
+					
+<tipoopr>  ---> 	SUMA | RESTA | MULTIPLICACION |DIVISION
+
+<oprcomplemento>  --->  <oprcomplemento> <oprcom>
+						| <oprcom>
+						
+<oprcom>   --->  		<tipoopr> <valor>
+						| <tipoopr> NOMBRECAMPO
+						
+<incredismivariable>   ---> NOMBRECAMPO <indis>
+
+<indis>   ---> AUMENTAR | DISMINUIR
+
+<cambiarvalor>   --->  NOMBRECAMPO ASIGNADOR <cambvalor>
+
+<cambvalor> ---> <valor> | <operasignacion> | NOMBRECAMPO
+
+<buclecondicion>  --->  <condicionif>  | <buclefor>
+						| <buclewhile>
+						
+<condicionif>  ---> <condicionsi>
+					| <condicionsi> <condicionno>
+					| <condicionsi> <condicionessino> <condicionno>
+
+<condicionsi>   ---->  SI(<condicion>)[<lineascodigos>]
+ 
+<condicion>  ---> <valor> <condicional> <valor>
+					| <valor> <condicional> NOMBRECAMPO
+					| NOMBRECAMPO <condicional> <valor>
+					| NOMBRECAMPO <condicional> NOMBRECAMPO
+					
+<condicional>  --->  MAYOR  | MENOR |IGUAL |MAYORIGUAL |MENORIGUAL | DIFERENTE
+
+<condicionno>   ---> NO[<lineascodigos>]
+
+<condicionessino>  ---->  <condicionessino> <condiciosino>
+						| <condiciosino>
+						
+<condiciosino>  ---> SINO(<condicion>)[<lineascodigos>]
+
+<buclefor>  ---> PARA(<iniciafor>;<condicion>;<incredismivariable>)[<lineascodigos>]					
+
+<iniciafor>  --> <tipodato>NOMBRECAMPO <asignarvalor>
+
+<buclewhile>   --->  MIENTRAS(<condicion>)[<lineascodigos>]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

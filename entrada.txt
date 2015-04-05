@@ -1,0 +1,7 @@
+void main (void)
+{
+int a=>7;
+string b=>2;
+int a=>2;
+}
+define id_macro 10
