@@ -1,12 +1,8 @@
-/*****************
- * Codigo en C*
- ****************/
-
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include "sintactico.tab.h"	
-
+	#include "semantico.tab.h"
+	int linea = 1;
 %}
 
 %option noyywrap
@@ -14,12 +10,13 @@
 
 ignora " "|\t|\n
 numero [0-9]
+decimal [0-9]+"."[0-9]+
 caracter [a-zA-Z]
 booleano "true"|"false"
 
 %%
 
-(ignora)*				{;}
+(ignora)*				/* don't give a fuck */
 "(" 					{return('(');}
 ")"				 		{return(')');}
 "," 					{return(',');}
@@ -38,32 +35,32 @@ booleano "true"|"false"
 "complex"				{return T_COMPLEJO;}
 "define"				{return DEFINE;}
 "id_macro"				{return ID_MACRO;}
-"+"						{return SUMA;}
-"-"						{return RESTA;}
-"*"						{return MULTIPLICACION;}
-"/"						{return DIVISION;}
-"--"					{return DISMINUIR;}
-"++"					{return AUMENTAR;}
-"=>"					{return ASIGNADOR;}
-"<"						{return MENOR;}
-">"						{return MAYOR;}
-">="					{return MAYORIGUAL;}
-"<="					{return MENORIGUAL;}
-"=="					{return IGUAL;}
-"!="					{return DIFERENTE;}
+"+"						{yylval.entero = 9; return SUMA;}
+"-"						{yylval.entero = 8; return RESTA;}
+"*"						{yylval.entero = 7; return MULTIPLICACION;}
+"/"						{yylval.entero = 6; return DIVISION;}
+"--"					{yylval.entero = 5; return DISMINUIR;}
+"++"					{yylval.entero = 4; return AUMENTAR;}
+"="						{return ASIGNADOR;}
+"<"						{yylval.entero = 99;return MENOR;}
+">"						{yylval.entero = 88;return MAYOR;}
+"=="					{yylval.entero = 77;return IGUAL;}
+"!="					{yylval.entero = 66;return DIFERENTE;}
 "if"					{return IF;}
 "else"					{return ELSE;}
 "else if"				{return ELIF;}
 "while"					{return WHILE;}
 "for"					{return FOR;}
-{booleano}				{yylval.cadena = strdup(yytext); return BOOLEANO;}
-{numero}+				{yylval.cadena = strdup(yytext); return ENTERO;}
-{numero}+"."{numero}	{yylval.cadena = strdup(yytext); return DECIMAL;}
-{numero}+"+j"{numero}+ 	{yylval.cadena = strdup(yytext); return COMPLEJO;}
+{booleano}				{yylval.entero = 3; return BOOLEANO;}
+{numero}+				{yylval.entero = 1; return ENTERO;}
+{numero}+"."{numero}	{yylval.entero = 2; return DECIMAL;}
+{numero}+"+j"{numero}+	{yylval.entero = 5; return COMPLEJO;}
+"\""({caracter}|" "|{numero})*"\""	{yylval.entero = 4; return STRING;}
 {caracter}({caracter}|{numero})*	{yylval.cadena = strdup(yytext); return CONSTANTE;}
-"\n" 					{}
+"\n" 					{ linea++; }
 [\t\r\f]				 {}
 " "						 {}
+"/*"(.)+"*/"			/* don't give a fuck */
 .	{printf("Error en linea %d \n",yylineno);}
 
 %%

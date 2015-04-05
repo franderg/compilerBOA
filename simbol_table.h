@@ -37,12 +37,13 @@ int ins_inicio_lista (char *pName, int pType, int pConstant){
  * busca un elemento en la lista
  * @return 1 si el elemento se encuentra en la lista, 0 de lo contrario 
  */
-int buscar_elemento (char *pName, int pType){
+int buscar_elemento (char *pName){
   	Elemento *actual;
   	actual = inicio;
   	while (actual != NULL){
-  		if (!strcmp(actual->name, pName) && actual->type==pType)
+  		if (!strcmp(actual->name, pName))
   			return 1;
+  		actual = actual->siguiente;
   	}
   	return 0;
 }
@@ -57,9 +58,26 @@ Elemento * obtener_elemento (char *pName, int pType){
   	while (actual != NULL){
   		if (!strcmp(actual->name, pName) && actual->type==pType)
   			return actual;
+  		actual = actual->siguiente;
   	}
   	return NULL;
 }
+
+/**
+ * busca un elemento en la lista
+ * @return 1 si el elemento se encuentra en la lista, 0 de lo contrario 
+ */
+int obtener_tipo_elemento (char *pName){
+  	Elemento *actual;
+  	actual = inicio;
+  	while (actual != NULL){
+  		if (!strcmp(actual->name, pName))
+  			return actual->type;
+  		actual = actual->siguiente;  		
+  	}
+  	return -1;
+}
+
 
 void visualizacion (){
 	printf("****	TABLA DE SIMBOLOS 	****\n");

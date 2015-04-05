@@ -1,8 +1,7 @@
 void main (void)
 {
-string a;
-int a=>7;
-string b=>2;
-int a=>2;
+int a=7;
+string b="hola mundo"; 
+a = 5+3;
+while (a<"2hola") [ a = a + 1; ] /* los while me prenden */
 }
-define id_macro 10

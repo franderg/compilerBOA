@@ -40,16 +40,15 @@ int yystopparser = 0;
 
 
 
-programa:       principal macro {visualizacion();}
-                | principal {visualizacion();}
-                | error principal {visualizacion();};
+programa:       principal macro
+                | principal;
 
 principal:		VOID MAIN '(' VOID ')' '{' lineascodigo '}';
 
 /* produccion para generar macros */
 macro:			DEFINE ID_MACRO valor macro | DEFINE ID_MACRO valor;
 
-lineascodigo:	  lineacodigo 
+lineascodigo:   lineacodigo 
                 | /* vacio */;
 
 lineacodigo:    lineacodigo linea 
@@ -72,7 +71,7 @@ valor:			ENTERO | DECIMAL | BOOLEANO | STRING | COMPLEJO;
 
 /* produccion para crear una variable */
 crearvariable:    tipodato CONSTANTE  {ins_inicio_lista($2, $1, 0);}  /* crear variable */ 
-                  | tipodato CONSTANTE asignarvalor;  /* crear variable constante */
+                  | tipodato CONSTANTE asignarvalor {ins_inicio_lista($2, $1, 0);}; /* crear variable asignandole un dato */
 
 tipodato:         T_ENTERO      {$$=1;}
                   | T_DECIMAL   {$$=2;}
@@ -80,53 +79,91 @@ tipodato:         T_ENTERO      {$$=1;}
                   | T_STRING    {$$=4;}
                   | T_COMPLEJO  {$$=5;};
 
-asignarvalor:	ASIGNADOR opasignar | ASIGNADOR valor | ASIGNADOR CONSTANTE | error ASIGNADOR;
+/* produccion para asignar algun objeto a una variable Asignador '=' */
+asignarvalor:     ASIGNADOR opasignar 
+                  | ASIGNADOR valor 
+                  | ASIGNADOR CONSTANTE;
 
-opasignar:		aritmetico | invocarmetodo| cambvariable;
+/* asigna una operacion, el retorno de un metodo o modifica una variable*/
+opasignar:		    aritmetico 
+                  | invocarmetodo;
 
 aritmetico:		opcomun | opcomun opcomplemento;
 
-opcomun:		valor tipoopr valor | valor tipoopr CONSTANTE | CONSTANTE tipoopr valor | CONSTANTE tipoopr CONSTANTE;
+/* operaciones aritmeticas: suma, resta, multiplicacion, division*/
+opcomun:          valor tipoopr valor /* */
+                  | valor tipoopr CONSTANTE 
+                  | CONSTANTE tipoopr valor 
+                  | CONSTANTE tipoopr CONSTANTE;
 
 opcomplemento:	opcomplemento oprcom | oprcom;
 
 oprcom:			 tipoopr valor | tipoopr CONSTANTE;
 
-tipoopr:		SUMA | RESTA | MULTIPLICACION |DIVISION;
-
-cambvariable:	CONSTANTE indis;
-
-indis:			AUMENTAR | DISMINUIR;
+tipoopr:		SUMA | RESTA | MULTIPLICACION | DIVISION;
 
 cambiarvalor:	CONSTANTE ASIGNADOR cambvalor;
 
+cambvariable: CONSTANTE indis;
+
+indis:      AUMENTAR | DISMINUIR;
+
 cambvalor:		valor | opasignar | CONSTANTE;
 
-buclecondicion:	condicionif | buclefor | buclewhile;
+buclecondicion:   condicionif 
+                  | buclefor 
+                  | buclewhile;
 
-condicionif:	condicionsi| condicionsi condicionno | condicionsi condicionessino condicionno;
+condicionif:      condicionsi
+                  | condicionsi condicionno 
+                  | condicionsi condicionessino condicionno;
 
-condicionsi:	IF '(' condicion ')' '[' lineascodigo']';
+condicionsi:      IF '(' condicion ')' '[' lineascodigo']';
 
-condicion:		valor condicional valor | valor condicional CONSTANTE | CONSTANTE condicional valor | CONSTANTE condicional CONSTANTE;
+condicion:        valor condicional valor 
+                  | valor condicional CONSTANTE 
+                  | CONSTANTE condicional valor 
+                  | CONSTANTE condicional CONSTANTE;
 
-condicionsino:	ELIF '(' condicion ')' '[' lineascodigo ']';
+/* operadores logicos */
+condicional:      MAYOR | MENOR | IGUAL | MAYORIGUAL | MENORIGUAL | DIFERENTE;
 
-condicional:	MAYOR | MENOR | IGUAL | MAYORIGUAL | MENORIGUAL | DIFERENTE;
+/* else */
+condicionno:      ELSE '[' lineascodigo ']';
 
-condicionno:	ELSE '[' lineascodigo ']';
+/* uno o varios elif */
+condicionessino:  condicionessino condicionsino 
+                  | condicionsino;
 
-condicionessino:	condicionessino condicionsino | condicionsino;
+/* elif */
+condicionsino:    ELIF '(' condicion ')' '[' lineascodigo ']';
 
-buclefor:		FOR '(' iniciafor ';' condicion ';' cambvariable ')' '[' lineascodigo ']';					
+/* ciclo for */
+buclefor:         FOR '(' iniciafor ';' condicion ';' cambvariable ')' '[' lineascodigo ']';					
 
-iniciafor:		tipodato CONSTANTE asignarvalor;
+/* variable inicial del for */
+iniciafor:        tipodato CONSTANTE asignarvalor;
 
-buclewhile:		WHILE '(' condicion ')' '[' lineascodigo ']';
+/* ciclo while */
+buclewhile:       WHILE '(' condicion ')' '[' lineascodigo ']';
 
 %%
+
 /**********************
  * Codigo C Adicional *
  **********************/
+
+int check_Variable (char * constante){
+  if (obtener_tipo_elemento(constante)==-1){ /* si la constante no esta en la tabla de simbolos */
+    printf("La variable %s no esta declarada",constante);
+    return 0;
+  }
+  else{
+    /* */
+    return 1;
+  }
+}
+
+
 
 
