@@ -1,0 +1,6 @@
+struct instruction
+{
+    char * string;
+};
+
+struct instruction code[999];

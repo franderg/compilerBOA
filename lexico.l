@@ -81,7 +81,6 @@ int main(int argc,char **argv)
 	else
 		yyin=fopen("entrada.txt","rt");		
 		if(!yyparse())
-			printf("Compilacion completa sin errores \n");
 	visualizacion();
 	fclose(yyin);
 }
