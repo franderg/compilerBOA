@@ -1,12 +1,8 @@
-/*****************
- * Codigo en C*
- ****************/
-
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include "sintactico.tab.h"	
-
+	#include "sintactico.tab.h"
+	int linea = 1;
 %}
 
 %option noyywrap
@@ -19,7 +15,7 @@ booleano "true"|"false"
 
 %%
 
-(ignora)*				{;}
+(ignora)*				/* */
 "(" 					{return('(');}
 ")"				 		{return(')');}
 "," 					{return(',');}
@@ -31,11 +27,11 @@ booleano "true"|"false"
 ";" 					{return(';');}
 "void"					{return VOID;}
 "main"					{return MAIN;}
-"int"					{return T_ENTERO;}
-"decimal"				{return T_DECIMAL;}
-"bool"					{return T_BOOLEANO;}
-"string"				{return T_STRING;}
-"complex"				{return T_COMPLEJO;}
+"int"					{yylval.cadena = "int "; return T_ENTERO;}
+"decimal"				{yylval.cadena = "float "; return T_DECIMAL;}
+"bool"					{yylval.cadena = "bool "; return T_BOOLEANO;}
+"string"				{yylval.cadena = "string "; return T_STRING;}
+"complex"				{yylval.cadena = "Complejo "; return T_COMPLEJO;}
 "define"				{return DEFINE;}
 "id_macro"				{return ID_MACRO;}
 "+"						{return SUMA;}
@@ -44,11 +40,9 @@ booleano "true"|"false"
 "/"						{return DIVISION;}
 "--"					{return DISMINUIR;}
 "++"					{return AUMENTAR;}
-"=>"					{return ASIGNADOR;}
+"="						{return ASIGNADOR;}
 "<"						{return MENOR;}
 ">"						{return MAYOR;}
-">="					{return MAYORIGUAL;}
-"<="					{return MENORIGUAL;}
 "=="					{return IGUAL;}
 "!="					{return DIFERENTE;}
 "if"					{return IF;}
@@ -60,10 +54,12 @@ booleano "true"|"false"
 {numero}+				{yylval.cadena = strdup(yytext); return ENTERO;}
 {numero}+"."{numero}	{yylval.cadena = strdup(yytext); return DECIMAL;}
 {numero}+"+j"{numero}+ 	{yylval.cadena = strdup(yytext); return COMPLEJO;}
+"\""({caracter}|" "|{numero})*"\""	{yylval.cadena = strdup(yytext); return STRING;}
 {caracter}({caracter}|{numero})*	{yylval.cadena = strdup(yytext); return CONSTANTE;}
-"\n" 					{}
-[\t\r\f]				 {}
-" "						 {}
+"\n" 					{ linea++; }
+[\t\r\f]				/* */
+" "						/* */
+"/*"(.)+"*/"			/* */
 .	{printf("Error en linea %d \n",yylineno);}
 
 %%
@@ -81,6 +77,7 @@ int main(int argc,char **argv)
 	else
 		yyin=fopen("entrada.txt","rt");		
 		if(!yyparse())
-	visualizacion();
+	//visualizacion();
+	print_code();
 	fclose(yyin);
 }

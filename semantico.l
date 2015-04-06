@@ -10,13 +10,12 @@
 
 ignora " "|\t|\n
 numero [0-9]
-decimal [0-9]+"."[0-9]+
 caracter [a-zA-Z]
 booleano "true"|"false"
 
 %%
 
-(ignora)*				/* don't give a fuck */
+(ignora)*				/* */
 "(" 					{return('(');}
 ")"				 		{return(')');}
 "," 					{return(',');}
@@ -58,9 +57,9 @@ booleano "true"|"false"
 "\""({caracter}|" "|{numero})*"\""	{yylval.entero = 4; return STRING;}
 {caracter}({caracter}|{numero})*	{yylval.cadena = strdup(yytext); return CONSTANTE;}
 "\n" 					{ linea++; }
-[\t\r\f]				 {}
-" "						 {}
-"/*"(.)+"*/"			/* don't give a fuck */
+[\t\r\f]				/* */
+" "						/* */
+"/*"(.)+"*/"			/* */
 .	{printf("Error en linea %d \n",yylineno);}
 
 %%

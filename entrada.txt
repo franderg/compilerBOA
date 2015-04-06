@@ -1,7 +1,9 @@
 void main (void)
 {
-int a=7;
-string b="hola mundo"; 
-a = 5+3;
-while (a<"2hola") [ a = a + 1; ] /* los while me prenden */
+int a;
+complex euler = 4+j5;
+string b="hola mundo";
+while (a<10) [ a = a/4*5; ]
+for (int a=0;a!=5;a++) [ b=b+" 2015"; ]
+
 }

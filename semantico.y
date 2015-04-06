@@ -1,9 +1,5 @@
 %{
 
-/********************** 
- * Declaraciones en C *
- **********************/
- 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -16,11 +12,10 @@ extern FILE *yyin;
 void yyerror(char *s);
 int yystopparser = 0;
 
-
 %}
 %union{
         char *cadena;
-        int entero;     
+        int entero;   
 }
 /*************************
   Declaraciones de Bison *
@@ -50,7 +45,6 @@ int yystopparser = 0;
 
 %type <entero> tipodato
 %type <entero> valor
-%type <entero> opasignar
 %type <entero> aritmetico
 %type <entero> tipoopr
 %type <entero> opcomun
@@ -61,8 +55,11 @@ int yystopparser = 0;
 %type <entero> cambvalor
 %type <entero> condicional
 %type <entero> condicion
+%type <entero> oprcom
+%type <entero> opcomplemento
 
 %%
+
 /***********************
  * Reglas Gramaticales *
  ***********************/
@@ -128,7 +125,7 @@ tipodato:         T_ENTERO      {$$=1;}
                   | T_COMPLEJO  {$$=5;};
 
 /* produccion para asignar algun objeto a una variable Asignador '=' */
-asignarvalor:     ASIGNADOR opasignar       {$$=$2;}
+asignarvalor:     ASIGNADOR aritmetico      {$$=$2;}
                   | ASIGNADOR valor         {$$=$2;}
                   | ASIGNADOR CONSTANTE     {
                                               int operando1 = obtener_tipo_elemento($2);
@@ -141,12 +138,11 @@ asignarvalor:     ASIGNADOR opasignar       {$$=$2;}
                                               }
                                             };
 
-/* asigna una operacion, el retorno de un metodo o modifica una variable*/
-opasignar:		    aritmetico                { $$ = $1; }; /////////////////// CAMBIAR
+aritmetico:       opcomun                   { $$ = $1; }
+                  | opcomun opcomplemento   {
+                                              $$ = check_operacion_aritmetica($1,($2%10),(int)($2/10)); 
+                                            };
 
-aritmetico:       opcomun                         { $$ = $1; }
-                  | opcomun tipoopr aritmetico    { $$ = check_operacion_aritmetica($1,$3,$2); }
-;
 
 /* operaciones aritmeticas: suma, resta, multiplicacion, division*/
 opcomun:          valor tipoopr valor             {$$ = check_operacion_aritmetica($1,$3,$2);}
@@ -191,6 +187,19 @@ opcomun:          valor tipoopr valor             {$$ = check_operacion_aritmeti
                                                     else $$ = -1;
                                                   };
 
+opcomplemento:    opcomplemento oprcom    { $$ = $2; } 
+                  | oprcom                { $$ = $1; };
+
+oprcom:           tipoopr valor           { $$ = 10*$1+$2; }
+                  | tipoopr CONSTANTE     {
+                                            if (check_Variable($2)!=0){
+                                              int tipo = obtener_tipo_elemento($2);
+                                              $$ = 10*$1+tipo;
+                                            }
+                                            else $$ = -1;
+                                          };
+
+
 tipoopr:          SUMA                {$$=$1;}
                   | RESTA             {$$=$1;}
                   | MULTIPLICACION    {$$=$1;}
@@ -234,7 +243,7 @@ indis:            AUMENTAR            {$$ = $1;}
                   | DISMINUIR         {$$ = $1;};
 
 cambvalor:        valor               {$$ = $1;} 
-                  | opasignar         {$$ = $1;}
+                  | aritmetico         {$$ = $1;}
                   | CONSTANTE         {
                                         if (check_Variable($1)!=0){
                                           $$ = obtener_tipo_elemento($1);
@@ -420,7 +429,7 @@ int check_operacion_aritmetica(int operando1, int operando2, int operador){
 
   }
 
-  else if (operador==8){ /* si el operador es division */
+  else if (operador==6){ /* si el operador es division */
 
     /* si ambos son booleanos, hay un error */
     if (operando1==3 && operando2==3) { 

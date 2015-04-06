@@ -2,5 +2,125 @@ struct instruction
 {
     char * string;
 };
+typedef struct instruction instr;
 
-struct instruction code[999];
+instr code[999];
+
+int ultimalinea = 0;
+
+/* concatena dos cadenas de caracteres, destino + origen */
+char * concat(char * destino, char * origen)
+{
+	char * variable = (char *) malloc (strlen(destino)+strlen(origen)+1);
+	strcat(variable,destino);
+	strcat(variable,origen);
+	return variable;
+}
+
+
+char * asignacion_variable (char * tipo, char * constante, char * asignacion){
+	if (strcmp(tipo,"Complejo ")==0){
+		char * variable = concat(tipo,constante);
+		if (!strcmp(asignacion,"")==0){
+			variable = concat(variable, " = new Complejo");
+
+			char * eliminarIgual = NULL;
+			eliminarIgual = strtok(asignacion," = ");
+
+    		char *trozo = NULL;
+    		trozo = strtok(eliminarIgual, "+j");
+			variable = concat(variable, " ( ");
+			variable = concat(variable, (char *) trozo);
+			variable = concat(variable, " , ");
+			trozo = strtok(NULL, "+j");
+			variable = concat(variable,trozo);
+			variable = concat(variable, " )");
+		}
+		return variable;
+	}
+	else {
+		char * variable = concat(tipo,constante);
+		if (strcmp(asignacion,"")){
+			variable = concat(variable, asignacion);
+		}
+		return variable;
+	}
+}
+
+void escribir_linea (char * linea){
+	code[ultimalinea].string = (char *) malloc(strlen(linea)+1);
+	strcpy(code[ultimalinea++].string, linea);
+}
+
+void escribir_asignacion (char * constante, char * opr_asignacion, char * asignacion){
+	char * variable = concat(constante,opr_asignacion);
+	variable = concat(variable, asignacion);
+
+	escribir_linea(variable);
+}
+
+char * concatenar_operacion (char * operando1, char * operando2, char * operador){
+
+	char * variable = concat(operando1,operador);
+	variable = concat(variable, operando2);
+	return variable;
+}
+
+char * concatenar_operacion_extra (char * operando1, char * operando2, char * operador){
+	char * variable = concat(operando1,operador);
+	variable = concat(variable, operando2);
+	return variable;
+}
+
+void escribir_if (char * condicion){
+	char * temporal = concat ("if"," ( ");
+    temporal = concat (temporal,condicion);
+    temporal = concat (temporal," )\n");
+    escribir_linea(temporal);
+}
+
+void escribir_cuerpo (char * cuerpo){
+	char * temporal = concat ("{\n",cuerpo);
+    temporal = concat (temporal,"}\n");
+    escribir_linea(temporal);
+}
+
+void escribir_else (){
+	char * temporal = concat ("else","\n");
+	escribir_linea(temporal);
+}
+
+void escribir_elif (char * condicion){
+	char * temporal = concat ("elif"," ( ");
+    temporal = concat (temporal,condicion);
+    temporal = concat (temporal," )\n");
+    escribir_linea(temporal);
+}
+
+void escribir_for (char * iniciafor, char * condicion, char * cambvariable){
+	char * temporal = concat ("for"," ( ");
+    temporal = concat (temporal,iniciafor);
+    temporal = concat (temporal,";");
+    temporal = concat (temporal,condicion);
+    temporal = concat (temporal,";");
+    temporal = concat (temporal,cambvariable);
+    temporal = concat (temporal," )\n");
+    escribir_linea(temporal);
+}
+
+void escribir_while (char * condicion){
+	char * temporal = concat ("while"," ( ");
+    temporal = concat (temporal,condicion);
+    temporal = concat (temporal," )\n");
+    escribir_linea(temporal);
+}
+
+void print_code()
+{
+    int i = 0;
+    while (i < ultimalinea) 
+    {
+        printf("%s",code[i].string);
+        i++;
+    }
+}
