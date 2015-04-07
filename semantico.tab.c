@@ -1774,7 +1774,7 @@ yyreduce:
 #line 328 "semantico.y" /* yacc.c:1646  */
     {
 																				if (buscar_elemento((yyvsp[-1].cadena))==0){
-																					ins_inicio_lista ((yyvsp[-1].cadena),(yyvsp[-2].entero),(yyvsp[0].entero));
+																					ins_inicio_lista ((yyvsp[-1].cadena),(yyvsp[-2].entero),0);
 																				}
 																			}
 #line 1781 "semantico.tab.c" /* yacc.c:1646  */

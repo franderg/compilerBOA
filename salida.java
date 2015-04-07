@@ -8,7 +8,7 @@ package java;
 public class JavaApplication1 { 
  	 public static void main(String[] args) { 
 		int a;
-		double euler = 8383.83838383838383838383;
+		float euler = 8383.83838383838383838383;
 		string b = "hola mundo";
 		while ( a < 10 )		
 		{
@@ -17,9 +17,9 @@ public class JavaApplication1 {
 		while ( a < 10 )		
 		{
 					}
-		for ( int a = 0;a != 5;a++ )		
+		for ( int g = 0;g != 5;g++ )		
 		{
-			b = b + " 2015";
+			b = b + "2015";
 		}
 
 }

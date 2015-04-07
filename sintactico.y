@@ -250,7 +250,7 @@ buclefor:         FOR '(' iniciafor ';' condicion
 /* variable inicial del for */
 iniciafor:        tipodato CONSTANTE asignarvalor     { 
 														 if (buscar_elemento($2)==0){
-															ins_inicio_lista($2,$1,$3);
+															insertar($2,$1);
 														}
                                                         char * temporal = concat($1,$2);
                                                         temporal = concat(temporal,$3);

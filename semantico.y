@@ -327,7 +327,7 @@ buclefor:         FOR '(' iniciafor ';'
 /* variable inicial del for */
 iniciafor:        tipodato CONSTANTE asignarvalor 		{
 																				if (buscar_elemento($2)==0){
-																					ins_inicio_lista ($2,$1,$3);
+																					ins_inicio_lista ($2,$1,0);
 																				}
 																			};
 

@@ -480,7 +480,7 @@ static const yytype_uint16 yyrline[] =
      167,   168,   169,   171,   173,   175,   176,   178,   179,   180,
      187,   188,   189,   191,   192,   193,   195,   200,   201,   207,
      213,   221,   222,   223,   224,   227,   233,   234,   237,   243,
-     251,   258
+     251,   261
 };
 #endif
 
@@ -1753,24 +1753,27 @@ yyreduce:
   case 70:
 #line 251 "sintactico.y" /* yacc.c:1646  */
     { 
+														 if (buscar_elemento((yyvsp[-1].cadena))==0){
+															insertar((yyvsp[-1].cadena),(yyvsp[-2].cadena));
+														}
                                                         char * temporal = concat((yyvsp[-2].cadena),(yyvsp[-1].cadena));
                                                         temporal = concat(temporal,(yyvsp[0].cadena));
                                                         (yyval.cadena) = temporal;
                                                       }
-#line 1761 "sintactico.tab.c" /* yacc.c:1646  */
+#line 1764 "sintactico.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 258 "sintactico.y" /* yacc.c:1646  */
+#line 261 "sintactico.y" /* yacc.c:1646  */
     {
                                                                   escribir_while((yyvsp[-4].cadena));
                                                                   escribir_cuerpo((yyvsp[-1].cadena));
                                                                 }
-#line 1770 "sintactico.tab.c" /* yacc.c:1646  */
+#line 1773 "sintactico.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1774 "sintactico.tab.c" /* yacc.c:1646  */
+#line 1777 "sintactico.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1998,7 +2001,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 263 "sintactico.y" /* yacc.c:1906  */
+#line 266 "sintactico.y" /* yacc.c:1906  */
 
 
 /**********************
