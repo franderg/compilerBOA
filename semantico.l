@@ -31,7 +31,7 @@ booleano "true"|"false"
 "decimal"				{return T_DECIMAL;}
 "bool"					{return T_BOOLEANO;}
 "string"				{return T_STRING;}
-"complex"				{return T_COMPLEJO;}
+"float"				{return T_COMPLEJO;}
 "define"				{return DEFINE;}
 "id_macro"				{return ID_MACRO;}
 "+"						{yylval.entero = 9; return SUMA;}
@@ -53,7 +53,7 @@ booleano "true"|"false"
 {booleano}				{yylval.entero = 3; return BOOLEANO;}
 {numero}+				{yylval.entero = 1; return ENTERO;}
 {numero}+"."{numero}	{yylval.entero = 2; return DECIMAL;}
-{numero}+"+j"{numero}+	{yylval.entero = 5; return COMPLEJO;}
+{numero}+"."{numero}+				{yylval.entero = 5; return COMPLEJO;}
 "\""({caracter}|" "|{numero})*"\""	{yylval.entero = 4; return STRING;}
 {caracter}({caracter}|{numero})*	{yylval.cadena = strdup(yytext); return CONSTANTE;}
 "\n" 					{ linea++; }

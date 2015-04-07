@@ -222,19 +222,11 @@ cambiarvalor:	CONSTANTE ASIGNADOR cambvalor       {
 cambvariable:     CONSTANTE indis     {
                                         if (check_Variable($1)!=0){
                                           int tipo = obtener_tipo_elemento($1);
-                                          if (tipo==$2){
-                                            if (tipo==1 || tipo==2)
-                                            {
-                                              $$ = tipo;
-                                            }
-                                            else{
-                                              printf("Error[linea %d]: no se puede aplicar la operacion a la variable %s\n", linea,$1);
-                                            }
-                                          }
-                                          else{
-                                            printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere asignar", linea,$1);
-                                            $$ = -1;
-                                          }
+                                            if (tipo==1 || tipo==2 || tipo==5) { $$ = tipo; }
+											else{
+												printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere asignar", linea,$1);
+												$$ = -1;
+											}
                                         }
                                         else $$ = -1;
 };
@@ -327,13 +319,17 @@ condicionsino:    ELIF '(' condicion ')' '[' lineascodigo ']'     {
 buclefor:         FOR '(' iniciafor ';' 
                   condicion
                   ';' cambvariable ')' '[' lineascodigo ']' {
-                                                              if ($5!=3){
-                                                                printf("Error[linea %d]: la condicion del ciclo for no es de tipo booleano\n", linea);
-                                                              } 
-                                                            };					
+																			if ($5!=3){
+																				printf("Error[linea %d]: la condicion del ciclo for no es de tipo booleano\n", linea);
+																			} 
+																		};					
 
 /* variable inicial del for */
-iniciafor:        tipodato CONSTANTE asignarvalor;
+iniciafor:        tipodato CONSTANTE asignarvalor 		{
+																				if (buscar_elemento($2)==0){
+																					ins_inicio_lista ($2,$1,$3);
+																				}
+																			};
 
 /* ciclo while */
 buclewhile:       WHILE '(' 

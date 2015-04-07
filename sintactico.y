@@ -249,6 +249,9 @@ buclefor:         FOR '(' iniciafor ';' condicion
 
 /* variable inicial del for */
 iniciafor:        tipodato CONSTANTE asignarvalor     { 
+														 if (buscar_elemento($2)==0){
+															ins_inicio_lista($2,$1,$3);
+														}
                                                         char * temporal = concat($1,$2);
                                                         temporal = concat(temporal,$3);
                                                         $$ = temporal;
@@ -280,13 +283,13 @@ int check_Variable (char * constante){
 int insertar (char * constante, char * tipo){
   if (strcmp(tipo,"int ")==0)
     ins_inicio_lista(constante, 1, 0);
-  else if (strcmp(tipo,"float ")==0)
+  else if (strcmp(tipo,"double ")==0)
     ins_inicio_lista(constante, 2, 0);
   else if (strcmp(tipo,"bool ")==0)
     ins_inicio_lista(constante, 3, 0);
   else if (strcmp(tipo,"string ")==0)
     ins_inicio_lista(constante, 4, 0);
-  else if (strcmp(tipo,"Complejo ")==0)
+  else if (strcmp(tipo,"float ")==0)
     ins_inicio_lista(constante, 5, 0);
   return 0;
 }

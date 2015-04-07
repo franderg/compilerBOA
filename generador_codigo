@@ -19,32 +19,11 @@ char * concat(char * destino, char * origen)
 
 
 char * asignacion_variable (char * tipo, char * constante, char * asignacion){
-	if (strcmp(tipo,"Complejo ")==0){
-		char * variable = concat(tipo,constante);
-		if (!strcmp(asignacion,"")==0){
-			variable = concat(variable, " = new Complejo");
-
-			char * eliminarIgual = NULL;
-			eliminarIgual = strtok(asignacion," = ");
-
-    		char *trozo = NULL;
-    		trozo = strtok(eliminarIgual, "+j");
-			variable = concat(variable, " ( ");
-			variable = concat(variable, (char *) trozo);
-			variable = concat(variable, " , ");
-			trozo = strtok(NULL, "+j");
-			variable = concat(variable,trozo);
-			variable = concat(variable, " )");
-		}
-		return variable;
+	char * variable = concat(tipo,constante);
+	if (strcmp(asignacion,"")){
+		variable = concat(variable, asignacion);
 	}
-	else {
-		char * variable = concat(tipo,constante);
-		if (strcmp(asignacion,"")){
-			variable = concat(variable, asignacion);
-		}
-		return variable;
-	}
+	return variable;
 }
 
 void escribir_linea (char * linea){

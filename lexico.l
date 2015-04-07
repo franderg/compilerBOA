@@ -28,10 +28,10 @@ booleano "true"|"false"
 "void"					{return VOID;}
 "main"					{return MAIN;}
 "int"					{yylval.cadena = "int "; return T_ENTERO;}
-"decimal"				{yylval.cadena = "float "; return T_DECIMAL;}
+"decimal"				{yylval.cadena = "double "; return T_DECIMAL;}
 "bool"					{yylval.cadena = "bool "; return T_BOOLEANO;}
 "string"				{yylval.cadena = "string "; return T_STRING;}
-"complex"				{yylval.cadena = "Complejo "; return T_COMPLEJO;}
+"float"				{yylval.cadena = "float "; return T_COMPLEJO;}
 "define"				{return DEFINE;}
 [A-Z]+				{return ID_MACRO;}
 "+"						{return SUMA;}
@@ -53,7 +53,7 @@ booleano "true"|"false"
 {booleano}				{yylval.cadena = strdup(yytext); return BOOLEANO;}
 {numero}+				{yylval.cadena = strdup(yytext); return ENTERO;}
 {numero}+"."{numero}	{yylval.cadena = strdup(yytext); return DECIMAL;}
-{numero}+"+j"{numero}+ 	{yylval.cadena = strdup(yytext); return COMPLEJO;}
+{numero}+"."{numero}{numero}+	{yylval.cadena = strdup(yytext); return COMPLEJO;}
 "\""({caracter}|" "|{numero})*"\""	{yylval.cadena = strdup(yytext); return STRING;}
 {caracter}({caracter}|{numero})*	{yylval.cadena = strdup(yytext); return CONSTANTE;}
 "\n" 					{ linea++; }

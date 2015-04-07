@@ -4,7 +4,7 @@ struct ElementoLista {
 				 * 3 decimal
 				 * 3 booleano
 				 * 4 string
-				 * 5 complex
+				 * 5 float
 				 */
 	int constant;
 	struct ElementoLista *siguiente;
@@ -89,7 +89,7 @@ void visualizacion (){
     	else if (actual->type==2) printf ("decimal");
     	else if (actual->type==3) printf ("booleano");
     	else if (actual->type==4) printf ("string");
-    	else if (actual->type==5) printf ("complejo");
+    	else if (actual->type==5) printf ("float");
     	if (actual->constant==1)
     		printf("		constante\n");
     	else

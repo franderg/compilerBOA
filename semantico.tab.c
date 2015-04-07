@@ -477,9 +477,9 @@ static const yytype_uint16 yyrline[] =
       92,    92,    94,    95,    96,    97,    98,   101,   109,   121,
      122,   123,   124,   125,   128,   129,   130,   141,   142,   148,
      149,   162,   175,   190,   191,   193,   194,   203,   204,   205,
-     206,   208,   222,   242,   243,   245,   246,   247,   254,   255,
-     256,   258,   259,   260,   262,   264,   265,   278,   291,   307,
-     308,   309,   310,   313,   316,   317,   320,   327,   336,   339
+     206,   208,   222,   234,   235,   237,   238,   239,   246,   247,
+     248,   250,   251,   252,   254,   256,   257,   270,   283,   299,
+     300,   301,   302,   305,   308,   309,   312,   319,   328,   335
 };
 #endif
 
@@ -1619,68 +1619,60 @@ yyreduce:
     {
                                         if (check_Variable((yyvsp[-1].cadena))!=0){
                                           int tipo = obtener_tipo_elemento((yyvsp[-1].cadena));
-                                          if (tipo==(yyvsp[0].entero)){
-                                            if (tipo==1 || tipo==2)
-                                            {
-                                              (yyval.entero) = tipo;
-                                            }
-                                            else{
-                                              printf("Error[linea %d]: no se puede aplicar la operacion a la variable %s\n", linea,(yyvsp[-1].cadena));
-                                            }
-                                          }
-                                          else{
-                                            printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere asignar", linea,(yyvsp[-1].cadena));
-                                            (yyval.entero) = -1;
-                                          }
+                                            if (tipo==1 || tipo==2 || tipo==5) { (yyval.entero) = tipo; }
+											else{
+												printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere asignar", linea,(yyvsp[-1].cadena));
+												(yyval.entero) = -1;
+											}
                                         }
                                         else (yyval.entero) = -1;
 }
-#line 1639 "semantico.tab.c" /* yacc.c:1646  */
+#line 1631 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 242 "semantico.y" /* yacc.c:1646  */
+#line 234 "semantico.y" /* yacc.c:1646  */
     {(yyval.entero) = (yyvsp[0].entero);}
-#line 1645 "semantico.tab.c" /* yacc.c:1646  */
+#line 1637 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 243 "semantico.y" /* yacc.c:1646  */
+#line 235 "semantico.y" /* yacc.c:1646  */
     {(yyval.entero) = (yyvsp[0].entero);}
-#line 1651 "semantico.tab.c" /* yacc.c:1646  */
+#line 1643 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 245 "semantico.y" /* yacc.c:1646  */
+#line 237 "semantico.y" /* yacc.c:1646  */
     {(yyval.entero) = (yyvsp[0].entero);}
-#line 1657 "semantico.tab.c" /* yacc.c:1646  */
+#line 1649 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 246 "semantico.y" /* yacc.c:1646  */
+#line 238 "semantico.y" /* yacc.c:1646  */
     {(yyval.entero) = (yyvsp[0].entero);}
-#line 1663 "semantico.tab.c" /* yacc.c:1646  */
+#line 1655 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 247 "semantico.y" /* yacc.c:1646  */
+#line 239 "semantico.y" /* yacc.c:1646  */
     {
                                         if (check_Variable((yyvsp[0].cadena))!=0){
                                           (yyval.entero) = obtener_tipo_elemento((yyvsp[0].cadena));
                                         }
                                         else (yyval.entero) = -1;
                                       }
-#line 1674 "semantico.tab.c" /* yacc.c:1646  */
+#line 1666 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 264 "semantico.y" /* yacc.c:1646  */
+#line 256 "semantico.y" /* yacc.c:1646  */
     {check_operacion_logica((yyvsp[-2].entero),(yyvsp[0].entero),(yyvsp[-1].entero));}
-#line 1680 "semantico.tab.c" /* yacc.c:1646  */
+#line 1672 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 265 "semantico.y" /* yacc.c:1646  */
+#line 257 "semantico.y" /* yacc.c:1646  */
     {
                                                         if (check_Variable((yyvsp[0].cadena))!=0){
                                                           int tipo = obtener_tipo_elemento((yyvsp[0].cadena));
@@ -1694,11 +1686,11 @@ yyreduce:
                                                         }
                                                         else (yyval.entero) = -1;
                                                       }
-#line 1698 "semantico.tab.c" /* yacc.c:1646  */
+#line 1690 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 278 "semantico.y" /* yacc.c:1646  */
+#line 270 "semantico.y" /* yacc.c:1646  */
     {
                                                         if (check_Variable((yyvsp[-2].cadena))!=0){
                                                           int tipo = obtener_tipo_elemento((yyvsp[-2].cadena));
@@ -1712,11 +1704,11 @@ yyreduce:
                                                         }
                                                         else (yyval.entero) = -1;
                                                       }
-#line 1716 "semantico.tab.c" /* yacc.c:1646  */
+#line 1708 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 291 "semantico.y" /* yacc.c:1646  */
+#line 283 "semantico.y" /* yacc.c:1646  */
     {
                                                         int operando1 = obtener_tipo_elemento((yyvsp[-2].cadena));
                                                         int operando2 = obtener_tipo_elemento((yyvsp[0].cadena));
@@ -1731,65 +1723,75 @@ yyreduce:
                                                         }
                                                         else (yyval.entero) = -1;
                                                       }
-#line 1735 "semantico.tab.c" /* yacc.c:1646  */
+#line 1727 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 307 "semantico.y" /* yacc.c:1646  */
+#line 299 "semantico.y" /* yacc.c:1646  */
     {(yyval.entero) = (yyvsp[0].entero);}
-#line 1741 "semantico.tab.c" /* yacc.c:1646  */
+#line 1733 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 308 "semantico.y" /* yacc.c:1646  */
+#line 300 "semantico.y" /* yacc.c:1646  */
     {(yyval.entero) = (yyvsp[0].entero);}
-#line 1747 "semantico.tab.c" /* yacc.c:1646  */
+#line 1739 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 309 "semantico.y" /* yacc.c:1646  */
+#line 301 "semantico.y" /* yacc.c:1646  */
     {(yyval.entero) = (yyvsp[0].entero);}
-#line 1753 "semantico.tab.c" /* yacc.c:1646  */
+#line 1745 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 310 "semantico.y" /* yacc.c:1646  */
+#line 302 "semantico.y" /* yacc.c:1646  */
     {(yyval.entero) = (yyvsp[0].entero);}
-#line 1759 "semantico.tab.c" /* yacc.c:1646  */
+#line 1751 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 320 "semantico.y" /* yacc.c:1646  */
+#line 312 "semantico.y" /* yacc.c:1646  */
     {
                                                                     if ((yyvsp[-4].entero)!=3){
                                                                       printf("Error[linea %d]: la condicion del ciclo elif no es de tipo booleano\n", linea);
                                                                     } 
                                                                   }
-#line 1769 "semantico.tab.c" /* yacc.c:1646  */
+#line 1761 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 329 "semantico.y" /* yacc.c:1646  */
+#line 321 "semantico.y" /* yacc.c:1646  */
     {
-                                                              if ((yyvsp[-6].entero)!=3){
-                                                                printf("Error[linea %d]: la condicion del ciclo for no es de tipo booleano\n", linea);
-                                                              } 
-                                                            }
-#line 1779 "semantico.tab.c" /* yacc.c:1646  */
+																			if ((yyvsp[-6].entero)!=3){
+																				printf("Error[linea %d]: la condicion del ciclo for no es de tipo booleano\n", linea);
+																			} 
+																		}
+#line 1771 "semantico.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 78:
+#line 328 "semantico.y" /* yacc.c:1646  */
+    {
+																				if (buscar_elemento((yyvsp[-1].cadena))==0){
+																					ins_inicio_lista ((yyvsp[-1].cadena),(yyvsp[-2].entero),(yyvsp[0].entero));
+																				}
+																			}
+#line 1781 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 341 "semantico.y" /* yacc.c:1646  */
+#line 337 "semantico.y" /* yacc.c:1646  */
     {
                                                   if ((yyvsp[-4].entero)!=3){
                                                     printf("Error[linea %d]: la condicion del ciclo while no es de tipo booleano\n", linea);
                                                   } 
                                                 }
-#line 1789 "semantico.tab.c" /* yacc.c:1646  */
+#line 1791 "semantico.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1793 "semantico.tab.c" /* yacc.c:1646  */
+#line 1795 "semantico.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2017,7 +2019,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 347 "semantico.y" /* yacc.c:1906  */
+#line 343 "semantico.y" /* yacc.c:1906  */
 
 
 /**********************
