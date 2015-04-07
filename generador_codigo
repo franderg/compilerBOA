@@ -75,25 +75,25 @@ char * concatenar_operacion_extra (char * operando1, char * operando2, char * op
 void escribir_if (char * condicion){
 	char * temporal = concat ("if"," ( ");
     temporal = concat (temporal,condicion);
-    temporal = concat (temporal," )\n");
+    temporal = concat (temporal," )\n\t\t");
     escribir_linea(temporal);
 }
 
 void escribir_cuerpo (char * cuerpo){
-	char * temporal = concat ("{\n",cuerpo);
-    temporal = concat (temporal,"}\n");
+	char * temporal = concat ("\n\t\t{\n\t\t\t",cuerpo);
+    temporal = concat (temporal,"\t\t}\n");
     escribir_linea(temporal);
 }
 
 void escribir_else (){
-	char * temporal = concat ("else","\n");
+	char * temporal = concat ("else","\n\t\t");
 	escribir_linea(temporal);
 }
 
 void escribir_elif (char * condicion){
 	char * temporal = concat ("elif"," ( ");
     temporal = concat (temporal,condicion);
-    temporal = concat (temporal," )\n");
+    temporal = concat (temporal," )\n\t\t");
     escribir_linea(temporal);
 }
 
@@ -104,23 +104,37 @@ void escribir_for (char * iniciafor, char * condicion, char * cambvariable){
     temporal = concat (temporal,condicion);
     temporal = concat (temporal,";");
     temporal = concat (temporal,cambvariable);
-    temporal = concat (temporal," )\n");
+    temporal = concat (temporal," )");
     escribir_linea(temporal);
 }
 
 void escribir_while (char * condicion){
 	char * temporal = concat ("while"," ( ");
     temporal = concat (temporal,condicion);
-    temporal = concat (temporal," )\n");
+    temporal = concat (temporal," )");
     escribir_linea(temporal);
 }
 
-void print_code()
-{
+void print_code(){
+	
+	 //Encabezado del archivo .java
+    FILE *fp;
+    char cadena[] = "\npackage java; \n"
+            " \n/** \n * @authores frander y maikol \n "
+            "*/ \n \npublic class JavaApplication1 { \n \t "
+            "public static void main(String[] args) { \n";
+    fp = fopen("salida.java", "w+");// se crea el .java
+    fputs(cadena, fp);
+    //aqui va el codigo proveniente del compilador
     int i = 0;
     while (i < ultimalinea) 
     {
+		fputs("\t\t",fp);
+		fputs(code[i].string, fp);
         printf("%s",code[i].string);
         i++;
     }
+    char final[] = "\n}";
+    fputs(final, fp);
+    fclose(fp);
 }

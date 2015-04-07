@@ -3,7 +3,6 @@ void main (void)
 int a;
 complex euler = 4+j5;
 string b="hola mundo";
-while (a<10) [ a = a/4*5; ]
+while (a<10) [ while (a<10) [ a = a/4*5; ]; ]
 for (int a=0;a!=5;a++) [ b=b+" 2015"; ]
-
 }

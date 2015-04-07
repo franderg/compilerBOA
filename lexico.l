@@ -33,7 +33,7 @@ booleano "true"|"false"
 "string"				{yylval.cadena = "string "; return T_STRING;}
 "complex"				{yylval.cadena = "Complejo "; return T_COMPLEJO;}
 "define"				{return DEFINE;}
-"id_macro"				{return ID_MACRO;}
+[A-Z]+				{return ID_MACRO;}
 "+"						{return SUMA;}
 "-"						{return RESTA;}
 "*"						{return MULTIPLICACION;}
