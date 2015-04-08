@@ -3,6 +3,7 @@
 	#include <stdlib.h>
 	#include "semantico.tab.h"
 	int linea = 1;
+	int erroresSemanticos = 0;
 %}
 
 %option noyywrap
@@ -25,15 +26,13 @@ booleano "true"|"false"
 "]" 					{return(']');}
 "." 					{return('.');}
 ";" 					{return(';');}
-"void"					{return VOID;}
-"main"					{return MAIN;}
 "int"					{return T_ENTERO;}
 "decimal"				{return T_DECIMAL;}
 "bool"					{return T_BOOLEANO;}
 "string"				{return T_STRING;}
 "float"				{return T_COMPLEJO;}
 "define"				{return DEFINE;}
-"id_macro"				{return ID_MACRO;}
+[A-Z]+				{return ID_MACRO;}
 "+"						{yylval.entero = 9; return SUMA;}
 "-"						{yylval.entero = 8; return RESTA;}
 "*"						{yylval.entero = 7; return MULTIPLICACION;}
@@ -69,15 +68,34 @@ void yyerror(char *s)
 	printf("%s \n",s);
 }
 
+void generarSalida (char * cadena) {
+	FILE *fp;
+    fp = fopen("SalidaSemantico", "wt");
+    fputs(cadena, fp);
+    fclose(fp);
+}
 
 int main(int argc,char **argv)
 {
-	if (argc>1)
+	if (argc>1){
 		yyin=fopen(argv[1],"rt");
-	else
-		yyin=fopen("entrada.txt","rt");		
-		if(!yyparse())
-			printf("Compilacion completa sin errores \n");
-	visualizacion();
+		if(!yyparse()) { generarSalida("error"); }
+	}
+	else{
+		yyin=fopen("entrada.txt","rt");
+		if(!yyparse()) { generarSalida("error"); }
+	}
+	if (erroresSemanticos==0) {
+		generarSalida("1");
+	}
+	else {
+		generarSalida("error");
+	}
 	fclose(yyin);
 }
+
+
+
+
+
+

@@ -88,7 +88,7 @@ void visualizacion (){
     	if (actual->type==1) printf ("entero");
     	else if (actual->type==2) printf ("decimal");
     	else if (actual->type==3) printf ("booleano");
-    	else if (actual->type==4) printf ("string");
+    	else if (actual->type==4) printf ("String");
     	else if (actual->type==5) printf ("float");
     	if (actual->constant==1)
     		printf("		constante\n");

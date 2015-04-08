@@ -9,10 +9,10 @@
 extern int yylex(void);
 extern char *yytext;
 extern int linea;
+extern int erroresSimbolTable;
 extern FILE *yyin;
 void yyerror(char *s);
 int yystopparser = 0;
-
 %}
 
 %union{
@@ -42,25 +42,33 @@ int yystopparser = 0;
 
 %start programa
 
-%type <cadena> iniciafor
-%type <cadena> condicional
-%type <cadena> condicion
-%type <cadena> cambvalor
-%type <cadena> indis
-%type <cadena> cambvariable
-%type <cadena> cambiarvalor
-%type <cadena> tipoopr
-%type <cadena> opcomplemento
-%type <cadena> opcomun
-%type <cadena> oprcom
-%type <cadena> aritmetico
-%type <cadena> asignarvalor
-%type <cadena> tipodato
-%type <cadena> crearvariable
-%type <cadena> valor
-%type <cadena> linea
-%type <cadena> lineacodigo
 %type <cadena> lineascodigo
+%type <cadena> lineacodigo
+%type <cadena> linea
+%type <cadena> valor
+%type <cadena> crearvariable
+%type <cadena> tipodato
+%type <cadena> asignarvalor
+%type <cadena> aritmetico
+%type <cadena> opcomun
+%type <cadena> opcomplemento
+%type <cadena> oprcom
+%type <cadena> tipoopr
+%type <cadena> cambiarvalor
+%type <cadena> cambvariable
+%type <cadena> indis
+%type <cadena> cambvalor
+%type <cadena> buclecondicion
+%type <cadena> condicionif
+%type <cadena> condicionsi
+%type <cadena> condicion
+%type <cadena> condicional
+%type <cadena> condicionno
+%type <cadena> condicionessino
+%type <cadena> condicionsino
+%type <cadena> buclefor
+%type <cadena> iniciafor
+%type <cadena> buclewhile
 
 
 %%
@@ -68,10 +76,8 @@ int yystopparser = 0;
  * Reglas Gramaticales *
  ***********************/
 
-programa:       principal macro
-                | principal;
-
-principal:		VOID MAIN '(' VOID ')' '{' lineascodigo '}';
+programa:       lineascodigo macro                { if (erroresSimbolTable==0) { /*print($1);*/ print_code($1); } };
+                | lineascodigo                    { if (erroresSimbolTable==0) { /*print($1);*/ print_code($1); } };
 
 /* produccion para generar macros */
 macro:			DEFINE ID_MACRO valor macro | DEFINE ID_MACRO valor;
@@ -79,12 +85,12 @@ macro:			DEFINE ID_MACRO valor macro | DEFINE ID_MACRO valor;
 lineascodigo:   lineacodigo                       { $$ = $1; }
                 | /* vacio */                     { $$ = ""; };
 
-lineacodigo:    lineacodigo linea                 { $$ = $2; }
+lineacodigo:    lineacodigo linea                 { $$ = concat($1,$2); }
                 | linea                           { $$ = $1; };
 
-linea:          crearvariable ';'                 { escribir_linea (concat($1,";\n")); $$ = concat($1,";"); }
+linea:          crearvariable ';'                 { $$ = concat($1,";\n"); }
                 | cambiarvalor ';'                { $$ = concat($1,";\n"); } 
-                | buclecondicion                  { $$ = ""; };
+                | buclecondicion                  { $$ = $1; };
 
 valor:          ENTERO      { $$ = $1; }
                 | DECIMAL   { $$ = $1; }
@@ -94,22 +100,27 @@ valor:          ENTERO      { $$ = $1; }
 
 /* produccion para crear una variable */
 crearvariable:    tipodato CONSTANTE                {
-                                                      if (buscar_elemento($2)==0){
-                                                        insertar($2,$1);
+                                                      if (buscar_elemento($2)==0){ /* la variable no se encuentra en la tabla de simbolos */
+                                                        insertar($2,$1); /* inserta la constante en la tabla de simbolos */
                                                         $$ = asignacion_variable ($1,$2,"");
                                                       }
                                                       else {
                                                         printf("Aviso[linea %d]: variable %s previamente definida\n", linea, $2);
+                                                        erroresSimbolTable++;
+                                                        $$ = "";
                                                       } 
-                                                    };/* crear variable */ 
+                                                    };
                   | tipodato CONSTANTE asignarvalor {
-                                                      if (buscar_elemento($2)==0){
-                                                        insertar($2,$1);
+                                                      if (buscar_elemento($2)==0){ /* la variable no se encuentra en la tabla de simbolos */
+                                                        insertar($2,$1); /* inserta la constante en la tabla de simbolos */
+                                                        $$ = asignacion_variable ($1,$2,$3);
                                                       }
                                                       else {
                                                         printf("Aviso[linea %d]: variable %s previamente definida\n", linea, $2);
+                                                        erroresSimbolTable++;
+                                                        $$ = "";
                                                       }
-                                                      $$ = asignacion_variable ($1,$2,$3);
+                                                      
                                                     }; /* crear variable asignandole un dato */
 
 tipodato:         T_ENTERO      { $$=$1; }
@@ -119,37 +130,60 @@ tipodato:         T_ENTERO      { $$=$1; }
                   | T_COMPLEJO  { $$=$1; };
 
 /* produccion para asignar algun objeto a una variable Asignador '=' */
-asignarvalor:     ASIGNADOR aritmetico      { $$ = concat(" = ",$2); }
-                  | ASIGNADOR valor         { $$ = concat(" = ",$2); }
-                  | ASIGNADOR CONSTANTE     {
-                                              if (check_Variable($2)!=0){
-                                                $$ = concat(" = ",$2);
-                                              }
-                                              else $$ = "";
-                                            };
+asignarvalor:     ASIGNADOR aritmetico              { $$ = concat(" = ",$2); }
+                  | ASIGNADOR valor                 { $$ = concat(" = ",$2); }
+                  | ASIGNADOR CONSTANTE             {
+                                                      if (check_Variable($2)!=0){ /* la variable se encuentra en la tabla de simbolos */
+                                                        $$ = concat(" = ",$2);
+                                                      }
+                                                      else {
+                                                        printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $2);
+                                                        erroresSimbolTable++;
+                                                        $$ = "";
+                                                      }
+                                                    };
 
-aritmetico:       opcomun                   { $$ = $1; }
-                  | opcomun opcomplemento  { $$ = concat($1,$2); };
+aritmetico:       opcomun                           { $$ = $1; }
+                  | opcomun opcomplemento           { $$ = concat($1,$2); };
 
 /* operaciones aritmeticas: suma, resta, multiplicacion, division*/
 opcomun:          valor tipoopr valor             { $$ = concatenar_operacion($1,$3,$2);}
                   | valor tipoopr CONSTANTE       {
-                                                    if (check_Variable($3)!=0){
+                                                    if (check_Variable($3)!=0){ /* la variable se encuentra en la tabla de simbolos */
                                                       $$ = concatenar_operacion($1,$3,$2);
                                                     }
-                                                    else $$ = "";
+                                                    else {
+                                                        printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $3);
+                                                        erroresSimbolTable++;
+                                                        $$ = "";
+                                                    }
                                                   }
                   | CONSTANTE tipoopr valor       {
-                                                    if (check_Variable($1)!=0){
+                                                    if (check_Variable($1)!=0){ /* la variable se encuentra en la tabla de simbolos */
                                                       $$ = concatenar_operacion($1,$3,$2);
                                                     }
-                                                    else $$ = "";
+                                                    else {
+                                                        printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $1);
+                                                        erroresSimbolTable++;
+                                                        $$ = "";
+                                                    }
                                                   }
                   | CONSTANTE tipoopr CONSTANTE   {
-                                                    if (check_Variable($1)!=0 && check_Variable($3)!=0){
-                                                      $$ = concatenar_operacion($1,$3,$2);
+                                                    if (check_Variable($1)!=0){
+                                                      if (check_Variable($3)!=0){
+                                                        $$ = concatenar_operacion($1,$3,$2);
+                                                      }
+                                                      else {
+                                                        printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $3);
+                                                        erroresSimbolTable++;
+                                                        $$ = "";
+                                                      }
                                                     }
-                                                    else $$ = "";
+                                                    else {
+                                                        printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $1);
+                                                        erroresSimbolTable++;
+                                                        $$ = "";
+                                                    }
                                                   };
 
 opcomplemento:    opcomplemento oprcom      { $$ = concat($1,$2); } 
@@ -160,7 +194,11 @@ oprcom:           tipoopr valor             { $$ = concat($1,$2); }
                                               if (check_Variable($2)!=0){
                                                 $$ = concat($1,$2);
                                               }
-                                              else $$ = "";
+                                              else {
+                                                printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $2);
+                                                erroresSimbolTable++;
+                                                $$ = "";
+                                              }
                                             };
 
 tipoopr:          SUMA                { $$ = " + "; }
@@ -168,7 +206,16 @@ tipoopr:          SUMA                { $$ = " + "; }
                   | MULTIPLICACION    { $$ = " * "; }
                   | DIVISION          { $$ = " / "; };
 
-cambiarvalor:	    CONSTANTE ASIGNADOR cambvalor   { $$ = asignacion_variable($1," = ",$3);};
+cambiarvalor:	    CONSTANTE ASIGNADOR cambvalor   { 
+                                                    if (check_Variable($1)!=0){
+                                                      $$ = asignacion_variable($1," = ",$3); /* NOTA: asignacion_variable funciona diferente */
+                                                    }
+                                                    else {
+                                                      printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $1);
+                                                      erroresSimbolTable++;
+                                                      $$ = "";
+                                                    }
+                                                  };
 
 cambvariable:     CONSTANTE indis     { $$ = concat($1,$2); };
 
@@ -181,41 +228,65 @@ cambvalor:        valor               { $$ = $1; }
                                         if (check_Variable($1)!=0){
                                           $$ = $1;
                                         }
-                                        else $$ = "";
+                                        else {
+                                          printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $1);
+                                          erroresSimbolTable++;
+                                          $$ = "";
+                                        }
                                       };
 
-buclecondicion:   condicionif 
-                  | buclefor 
-                  | buclewhile;
+buclecondicion:   condicionif         { $$ = $1; }
+                  | buclefor          { $$ = $1; }
+                  | buclewhile        { $$ = $1; };
 
-condicionif:      condicionsi
-                  | condicionsi condicionno 
-                  | condicionsi condicionessino condicionno;
+condicionif:      condicionsi                                   { $$ = $1; }
+                  | condicionsi condicionno                     { $$ = concat($1,$2); }
+                  | condicionsi condicionessino condicionno     { char * temporal = concat($1,$2); $$ = concat(temporal,$3); };
 
-condicionsi:      IF '(' condicion ')' '[' lineascodigo ']'    {
-                                                                escribir_if($3);
-                                                                escribir_cuerpo($6);
-                                                              };
+condicionsi:      IF '(' condicion ')' '[' lineascodigo ']'     {
+                                                                  char * temporal = concat(escribir_if($3),"{\n");
+                                                                  temporal = concat(temporal,$6);
+                                                                  $$ = concat(temporal,"}\n");
+                                                                };
 
-condicion:        valor condicional valor             { $$ = concatenar_operacion($1,$3,$2); }
-                  | valor condicional CONSTANTE       {
-                                                        if (check_Variable($3)!=0){
-                                                          $$ = concatenar_operacion($1,$3,$2);
-                                                        }
-                                                        else $$ = "";
-                                                      }
-                  | CONSTANTE condicional valor       {
-                                                        if (check_Variable($1)!=0){
-                                                          $$ = concatenar_operacion($1,$3,$2);
-                                                        }
-                                                        else $$ = "";
-                                                      }
-                  | CONSTANTE condicional CONSTANTE   {
-                                                        if (check_Variable($1)!=0 && check_Variable($3)!=0){
-                                                          $$ = concatenar_operacion($1,$3,$2);
-                                                        }
-                                                        else $$ = "";
-                                                      };
+condicion:        valor condicional valor                       { $$ = concatenar_operacion($1,$3,$2); }
+                  | valor condicional CONSTANTE                 {
+                                                                  if (check_Variable($3)!=0){
+                                                                    $$ = concatenar_operacion($1,$3,$2);
+                                                                  }
+                                                                  else {
+                                                                    printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $3);
+                                                                    erroresSimbolTable++;
+                                                                    $$ = "";
+                                                                  }
+                                                                }
+                  | CONSTANTE condicional valor                 {
+                                                                  if (check_Variable($1)!=0){
+                                                                    $$ = concatenar_operacion($1,$3,$2);
+                                                                  }
+                                                                  else {
+                                                                    printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $1);
+                                                                    erroresSimbolTable++;
+                                                                    $$ = "";
+                                                                  }
+                                                                }
+                  | CONSTANTE condicional CONSTANTE             {
+                                                                  if (check_Variable($1)!=0){
+                                                                    if (check_Variable($3)!=0){
+                                                                      $$ = concatenar_operacion($1,$3,$2);
+                                                                    }
+                                                                    else {
+                                                                      printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $3);
+                                                                      erroresSimbolTable++;
+                                                                      $$ = "";
+                                                                    }
+                                                                  }
+                                                                  else {
+                                                                      printf("Aviso[linea %d]: variable %s no se esta definida\n", linea, $1);
+                                                                      erroresSimbolTable++;
+                                                                      $$ = "";
+                                                                  }
+                                                                };
 
 /* operadores logicos */
 condicional:      MAYOR           { $$ = " > "; }
@@ -224,43 +295,49 @@ condicional:      MAYOR           { $$ = " > "; }
                   | DIFERENTE     { $$ = " != "; };
 
 /* else */
-condicionno:      ELSE '[' lineascodigo ']'   {
-                                                escribir_else();
-                                                escribir_cuerpo($3);
-                                              };
+condicionno:      ELSE '[' lineascodigo ']'                     {
+                                                                  char * temporal = concat(escribir_else(),"{\n");
+                                                                  temporal = concat(temporal,$3);
+                                                                  $$ = concat(temporal,"}\n");
+                                                                };
 
 /* uno o varios elif */
-condicionessino:  condicionessino condicionsino 
-                  | condicionsino;
+condicionessino:  condicionessino condicionsino                 { $$ = concat ($1,$2); }
+                  | condicionsino                               { $$ = $1; };
 
 /* elif */
-condicionsino:    ELIF '(' condicion ')' '[' lineascodigo ']'  {
-                                                                  escribir_elif($3);
-                                                                  escribir_cuerpo($6);
+condicionsino:    ELIF '(' condicion ')' '[' lineascodigo ']'   {
+                                                                  char * temporal = concat(escribir_elif($3),"{\n");
+                                                                  temporal = concat(temporal,$6);
+                                                                  $$ = concat(temporal,"}\n");
                                                                 };
 
 /* ciclo for */
 buclefor:         FOR '(' iniciafor ';' condicion 
-                  ';' cambvariable ')' '[' lineascodigo ']' {
-                                                              escribir_for($3,$5,$7);
-                                                              escribir_cuerpo($10);
-
-};					
+                  ';' cambvariable ')' '[' lineascodigo ']'     {
+                                                                  char * temporal = concat(escribir_for($3,$5,$7),"{\n");
+                                                                  temporal = concat(temporal,$10);
+                                                                  $$ = concat(temporal,"}\n");
+                                                                };					
 
 /* variable inicial del for */
-iniciafor:        tipodato CONSTANTE asignarvalor     { 
-														 if (buscar_elemento($2)==0){
-															insertar($2,$1);
-														}
-                                                        char * temporal = concat($1,$2);
-                                                        temporal = concat(temporal,$3);
-                                                        $$ = temporal;
-                                                      };
+iniciafor:        tipodato CONSTANTE asignarvalor               { 
+														                                      if (buscar_elemento($2)==0){ /* si el elemento no esta en la tabla */
+                                                                    insertar($2,$1);
+                                                                    $$ = asignacion_variable($1,$2,$3);
+                                                                  }
+                                                                  else {
+                                                                      printf("Aviso[linea %d]: no se puede usar la variable %s porque ya esta previamente definida\n", linea, $2);
+                                                                      erroresSimbolTable++;
+                                                                      $$ = "";
+                                                                  }
+                                                                };
 
 /* ciclo while */
 buclewhile:       WHILE '(' condicion ')' '[' lineascodigo ']'  {
-                                                                  escribir_while($3);
-                                                                  escribir_cuerpo($6);
+                                                                  char * temporal = concat(escribir_while($3),"{\n");
+                                                                  temporal = concat(temporal,$6);
+                                                                  $$ = concat(temporal,"}\n");
                                                                 };
 
 %%
@@ -270,14 +347,8 @@ buclewhile:       WHILE '(' condicion ')' '[' lineascodigo ']'  {
  **********************/
 
 int check_Variable (char * constante){
-  if (obtener_tipo_elemento(constante)==-1){ /* si la constante no esta en la tabla de simbolos */
-    printf("La variable %s no esta declarada",constante);
-    return 0;
-  }
-  else{
-    /* */
-    return 1;
-  }
+  if (obtener_tipo_elemento(constante)==-1) return 0;
+  else return 1;
 }
 
 int insertar (char * constante, char * tipo){
@@ -287,7 +358,7 @@ int insertar (char * constante, char * tipo){
     ins_inicio_lista(constante, 2, 0);
   else if (strcmp(tipo,"bool ")==0)
     ins_inicio_lista(constante, 3, 0);
-  else if (strcmp(tipo,"string ")==0)
+  else if (strcmp(tipo,"String ")==0)
     ins_inicio_lista(constante, 4, 0);
   else if (strcmp(tipo,"float ")==0)
     ins_inicio_lista(constante, 5, 0);

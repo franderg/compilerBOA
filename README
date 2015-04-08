@@ -1,0 +1,8 @@
+Instrucciones para compilar un archivo:
+
+1. Escriba el codigo en un archivo con extension .boa 
+
+2. Escriba en la terminal 
+
+$ ./analizador archivo.boa
+

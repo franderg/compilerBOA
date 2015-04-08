@@ -8,6 +8,7 @@
 extern int yylex(void);
 extern char *yytext;
 extern int linea;
+extern int erroresSemanticos;
 extern FILE *yyin;
 void yyerror(char *s);
 int yystopparser = 0;
@@ -38,7 +39,7 @@ int yystopparser = 0;
 %token <entero> IGUAL
 %token <entero> DIFERENTE
 
-%token VOID MAIN T_ENTERO T_DECIMAL T_BOOLEANO T_COMPLEJO ASIGNADOR DEFINE
+%token T_ENTERO T_DECIMAL T_BOOLEANO T_COMPLEJO ASIGNADOR DEFINE
 %token ID_MACRO ELSE FOR WHILE IF ELIF T_STRING
 
 %start programa
@@ -64,10 +65,8 @@ int yystopparser = 0;
  * Reglas Gramaticales *
  ***********************/
 
-programa:       principal macro
-                | principal;
-
-principal:		VOID MAIN '(' VOID ')' '{' lineascodigo '}';
+programa:       lineascodigo macro
+                | lineascodigo;
 
 /* produccion para generar macros */
 macro:			DEFINE ID_MACRO valor macro | DEFINE ID_MACRO valor;
@@ -102,19 +101,14 @@ crearvariable:    tipodato CONSTANTE  {
                                         if (buscar_elemento($2)==0){
                                           ins_inicio_lista($2, $1, 0);
                                         }
-                                        else {
-                                          printf("Aviso[linea %d]: variable %s previamente definida\n", linea, $2);
-                                        }
                                       }  /* crear variable */ 
                   | tipodato CONSTANTE asignarvalor {
                                                       if (buscar_elemento($2)==0){
                                                         ins_inicio_lista($2, $1, 0);
                                                       }
-                                                      else {
-                                                        printf("Aviso[linea %d]: variable %s previamente definida\n", linea, $2);
-                                                      }
                                                       if($1!=$3){
                                                         printf("Error[linea %d]: se le asigna un tipo de dato diferente a la variable %s\n", linea, $2);
+                                                        erroresSemanticos++;
                                                       }
                                                     }; /* crear variable asignandole un dato */
 
@@ -134,6 +128,7 @@ asignarvalor:     ASIGNADOR aritmetico      {$$=$2;}
                                               }
                                               else{
                                                 printf("Error[linea %d]: la variable %s no esta definida o es de un tipo diferente\n", linea,$2);
+                                                erroresSemanticos++;
                                                 $$ = -1;
                                               }
                                             };
@@ -154,6 +149,7 @@ opcomun:          valor tipoopr valor             {$$ = check_operacion_aritmeti
                                                       }
                                                       else{
                                                         printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere asignar\n", linea,$3);
+                                                        erroresSemanticos++;
                                                         $$ = -1;
                                                       }
                                                     }
@@ -167,6 +163,7 @@ opcomun:          valor tipoopr valor             {$$ = check_operacion_aritmeti
                                                       }
                                                       else{
                                                         printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere asignar\n", linea,$1);
+                                                        erroresSemanticos++;
                                                         $$ = -1;
                                                       }
                                                     }
@@ -181,6 +178,7 @@ opcomun:          valor tipoopr valor             {$$ = check_operacion_aritmeti
                                                       }
                                                       else{
                                                         printf("Error[linea %d]: la variable %s es de un tipo diferente al de la variable %s\n", linea,$1,$3);
+                                                        erroresSemanticos++;
                                                         $$ = -1;
                                                       }
                                                     }
@@ -213,6 +211,7 @@ cambiarvalor:	CONSTANTE ASIGNADOR cambvalor       {
                                                       }
                                                       else{
                                                         printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere asignar\n", linea,$1);
+                                                        erroresSemanticos++;
                                                         $$ = -1;
                                                       }
                                                     }
@@ -225,6 +224,7 @@ cambvariable:     CONSTANTE indis     {
                                             if (tipo==1 || tipo==2 || tipo==5) { $$ = tipo; }
 											else{
 												printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere asignar", linea,$1);
+												erroresSemanticos++;
 												$$ = -1;
 											}
                                         }
@@ -262,6 +262,7 @@ condicion:        valor condicional valor             {check_operacion_logica($1
                                                           }
                                                           else{
                                                             printf("Error[linea %d]: la variable %s es de un tipo diferente al valor que se le quiere comparar\n", linea,$3);
+                                                            erroresSemanticos++;
                                                             $$ = -1;
                                                           }
                                                         }
@@ -275,6 +276,7 @@ condicion:        valor condicional valor             {check_operacion_logica($1
                                                           }
                                                           else{
                                                             printf("Error[linea %d]: la variable %s es de un tipo diferente al valor con el que se le quiere comparar\n", linea,$1);
+                                                            erroresSemanticos++;
                                                             $$ = -1;
                                                           }
                                                         }
@@ -289,6 +291,7 @@ condicion:        valor condicional valor             {check_operacion_logica($1
                                                           }
                                                           else{
                                                             printf("Error[linea %d]: la variable %s es de un tipo diferente al de la variable %s\n", linea,$1,$3);
+                                                            erroresSemanticos++;
                                                             $$ = -1;
                                                           }
                                                         }
@@ -312,6 +315,7 @@ condicionessino:  condicionessino condicionsino
 condicionsino:    ELIF '(' condicion ')' '[' lineascodigo ']'     {
                                                                     if ($3!=3){
                                                                       printf("Error[linea %d]: la condicion del ciclo elif no es de tipo booleano\n", linea);
+                                                                      erroresSemanticos++;
                                                                     } 
                                                                   };
 
@@ -321,6 +325,7 @@ buclefor:         FOR '(' iniciafor ';'
                   ';' cambvariable ')' '[' lineascodigo ']' {
 																			if ($5!=3){
 																				printf("Error[linea %d]: la condicion del ciclo for no es de tipo booleano\n", linea);
+																				erroresSemanticos++;
 																			} 
 																		};					
 
@@ -337,6 +342,7 @@ buclewhile:       WHILE '('
                   ')' '[' lineascodigo ']'      {
                                                   if ($3!=3){
                                                     printf("Error[linea %d]: la condicion del ciclo while no es de tipo booleano\n", linea);
+                                                    erroresSemanticos++;
                                                   } 
                                                 };
 
@@ -348,7 +354,6 @@ buclewhile:       WHILE '('
 
 int check_Variable (char * constante){
   if (obtener_tipo_elemento(constante)==-1){ /* si la constante no esta en la tabla de simbolos */
-    printf("Error[linea %d]: La variable %s no esta declarada\n", linea,constante);
     return 0;
   }
   else{
@@ -372,6 +377,7 @@ int check_operacion_aritmetica(int operando1, int operando2, int operador){
     /* si ambos son booleanos, hay un error */
     if (operando1==3 && operando2==3) { 
       printf("Error[linea %d]: no se pueden sumar datos de tipo booleanos\n", linea);
+      erroresSemanticos++;
       return -1;
     }
 
@@ -381,6 +387,7 @@ int check_operacion_aritmetica(int operando1, int operando2, int operador){
     /* si ambos son de tipos diferentes, hay un error */
     else if (operando1!=operando2) {
       printf("Error[linea %d]: no se pueden sumar datos de tipos diferentes\n", linea);
+      erroresSemanticos++;
       return -1;
     }
 
@@ -390,10 +397,12 @@ int check_operacion_aritmetica(int operando1, int operando2, int operador){
     /* si ambos son booleanos, hay un error */
     if (operando1==3 && operando2==3) { 
       printf("Error[linea %d]: no se pueden restar datos de tipo booleanos\n", linea);
+      erroresSemanticos++;
       return -1;
     }
     else if (operando1==4 && operando2==4) {
       printf("Error[linea %d]: no se pueden restar datos de tipo string\n", linea);
+      erroresSemanticos++;
       return -1;
     }
 
@@ -410,10 +419,12 @@ int check_operacion_aritmetica(int operando1, int operando2, int operador){
     /* si ambos son booleanos, hay un error */
     if (operando1==3 && operando2==3) { 
       printf("Error[linea %d]: no se pueden multiplicar datos de tipo booleanos\n", linea);
+      erroresSemanticos++;
       return -1;
     }
     else if (operando1==4 && operando2==4) {
       printf("Error[linea %d]: no se pueden multiplicar datos de tipo string\n", linea);
+      erroresSemanticos++;
       return -1;
     }
 
@@ -430,10 +441,12 @@ int check_operacion_aritmetica(int operando1, int operando2, int operador){
     /* si ambos son booleanos, hay un error */
     if (operando1==3 && operando2==3) { 
       printf("Error[linea %d]: no se pueden restar datos de tipo booleanos\n", linea);
+      erroresSemanticos++;
       return -1;
     }
     else if (operando1==4 && operando2==4) {
       printf("Error[linea %d]: no se pueden restar datos de tipo string\n", linea);
+      erroresSemanticos++;
       return -1;
     }
 
@@ -455,6 +468,7 @@ int check_operacion_logica(int operando1, int operando2, int operador) {
     /* si ambos son booleanos, hay un error */
     if (operando1==3 && operando2==3) { 
       printf("Error[linea %d]: no se puede aplicar el operador logico a datos de tipo booleanos\n", linea);
+      erroresSemanticos++;
       return -1;
     }
     else return 3;
@@ -463,11 +477,13 @@ int check_operacion_logica(int operando1, int operando2, int operador) {
     /* si ambos son booleanos, hay un error */
     if (operando1==3 || operando2==3) { 
       printf("Error[linea %d]: no se puede aplicar el operador logico a datos de tipo booleanos\n", linea);
+      erroresSemanticos++;
       return -1;
     }
     /* si ambos son string, hay un error */
     else if (operando1==4 || operando2==4) { 
       printf("Error[linea %d]: no se pueden aplicar los operadores logicos < o > a datos de tipo booleanos\n", linea);
+      erroresSemanticos++;
       return -1;
     }
     else return 3;

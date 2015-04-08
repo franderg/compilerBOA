@@ -18,83 +18,112 @@ char * concat(char * destino, char * origen)
 }
 
 
+/***********************************************************************************************
+ * funciones que retornan el equivalente en java a la linea de codigo que se les pide traducir *
+ ***********************************************************************************************/
+
+/**
+ * genera el codigo en java para asignar una variable
+ * @param tipo tipo de dato de la variable
+ * @constante nombre identificador de la variable
+ * @asignacion es el texto que se coloca al otro lado de el "=" en la asignacion, variable = asignacion
+ * @return codigo java funcional para asignar un valor a una variable
+ */
 char * asignacion_variable (char * tipo, char * constante, char * asignacion){
 	char * variable = concat(tipo,constante);
-	if (strcmp(asignacion,"")){
+	if (strcmp(asignacion,"")){	
 		variable = concat(variable, asignacion);
+	}
+	else { /* si se desea declarar una nueva variable, sin valor asignado */
+		if (strcmp(tipo,"int ")==0) 			variable = concat(variable, " = 0");
+  		else if (strcmp(tipo,"double ")==0)		variable = concat(variable, " = 0.0");
+		else if (strcmp(tipo,"bool ")==0)		variable = concat(variable, " = 0");
+		else if (strcmp(tipo,"String ")==0)		variable = concat(variable, " = \"\"");
+		else if (strcmp(tipo,"float ")==0)		variable = concat(variable, " = 0.0");
 	}
 	return variable;
 }
 
-void escribir_linea (char * linea){
-	code[ultimalinea].string = (char *) malloc(strlen(linea)+1);
-	strcpy(code[ultimalinea++].string, linea);
-}
-
-void escribir_asignacion (char * constante, char * opr_asignacion, char * asignacion){
-	char * variable = concat(constante,opr_asignacion);
-	variable = concat(variable, asignacion);
-
-	escribir_linea(variable);
-}
-
+/**
+ * genera el codigo en java para una operacion aritmetica o logica
+ * @return codigo java funcional para aplicar el operador a los dos operandos
+ */
 char * concatenar_operacion (char * operando1, char * operando2, char * operador){
-
 	char * variable = concat(operando1,operador);
 	variable = concat(variable, operando2);
 	return variable;
 }
 
-char * concatenar_operacion_extra (char * operando1, char * operando2, char * operador){
-	char * variable = concat(operando1,operador);
-	variable = concat(variable, operando2);
-	return variable;
-}
-
-void escribir_if (char * condicion){
+/**
+ * genera el codigo en java para el condicional if 
+ * @return codigo java funcional para aplicar el condicional
+ */
+char * escribir_if (char * condicion){
 	char * temporal = concat ("if"," ( ");
     temporal = concat (temporal,condicion);
-    temporal = concat (temporal," )\n\t\t");
-    escribir_linea(temporal);
+    temporal = concat (temporal," )\n");
+    return (temporal);
 }
 
-void escribir_cuerpo (char * cuerpo){
-	char * temporal = concat ("\n\t\t{\n\t\t\t",cuerpo);
-    temporal = concat (temporal,"\t\t}\n");
-    escribir_linea(temporal);
+/**
+ * genera el codigo en java para el condicional else
+ * @return codigo java funcional para aplicar el condicional
+ */
+char * escribir_else (){
+	return concat ("else","\n");
 }
 
-void escribir_else (){
-	char * temporal = concat ("else","\n\t\t");
-	escribir_linea(temporal);
-}
-
-void escribir_elif (char * condicion){
-	char * temporal = concat ("elif"," ( ");
+/**
+ * genera el codigo en java para el condicional elif
+ * @return codigo java funcional para aplicar el condicional
+ */
+char * escribir_elif (char * condicion){
+	char * temporal = concat ("else if"," ( ");
     temporal = concat (temporal,condicion);
-    temporal = concat (temporal," )\n\t\t");
-    escribir_linea(temporal);
+    temporal = concat (temporal," )\n");
+    return temporal;
 }
 
-void escribir_for (char * iniciafor, char * condicion, char * cambvariable){
+/**
+ * genera el codigo en java para el ciclo for
+ * @param iniciafor declaracion de una variable para el ciclo for int i = 0
+ * @param condicion condicion para que termine el for
+ * @param camvariable aumento o disminucion de la variable en iniciafor i++ o i--
+ * @return codigo java funcional para aplicar el ciclo
+ */
+char * escribir_for (char * iniciafor, char * condicion, char * cambvariable){
 	char * temporal = concat ("for"," ( ");
     temporal = concat (temporal,iniciafor);
     temporal = concat (temporal,";");
     temporal = concat (temporal,condicion);
     temporal = concat (temporal,";");
     temporal = concat (temporal,cambvariable);
-    temporal = concat (temporal," )");
-    escribir_linea(temporal);
+    temporal = concat (temporal," )\n");
+    return temporal;
 }
 
-void escribir_while (char * condicion){
+/**
+ * genera el codigo en java para el ciclo while
+ * @param condicion condicion para que termine el while
+ * @return codigo java funcional para aplicar el ciclo
+ */
+char * escribir_while (char * condicion){
 	char * temporal = concat ("while"," ( ");
     temporal = concat (temporal,condicion);
-    temporal = concat (temporal," )");
-    escribir_linea(temporal);
+    temporal = concat (temporal," )\n");
+    return temporal;
 }
 
-void print_code(){
+/***********************************************************************************************
+ * 										funciones auxilieares								   *
+ ***********************************************************************************************/
+
+void escribir_linea (char * linea){
+	code[ultimalinea].string = (char *) malloc(strlen(linea)+1);
+	strcpy(code[ultimalinea++].string, linea);
+}
+
+void print_code(char * JAVA){
 	
 	 //Encabezado del archivo .java
     FILE *fp;
@@ -105,15 +134,12 @@ void print_code(){
     fp = fopen("salida.java", "w+");// se crea el .java
     fputs(cadena, fp);
     //aqui va el codigo proveniente del compilador
-    int i = 0;
-    while (i < ultimalinea) 
-    {
-		fputs("\t\t",fp);
-		fputs(code[i].string, fp);
-        printf("%s",code[i].string);
-        i++;
-    }
-    char final[] = "\n}";
+    fputs(JAVA, fp);
+    char final[] = "\n}\n}\n";
     fputs(final, fp);
     fclose(fp);
+}
+
+void print(char * lineascodigo){
+	printf("%s\n",lineascodigo);	
 }
