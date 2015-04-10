@@ -4,5 +4,5 @@ Instrucciones para compilar un archivo:
 
 2. Escriba en la terminal 
 
-$ ./analizador archivo.boa
+$ ./compiladorBOA archivo.boa
 

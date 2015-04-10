@@ -29,12 +29,12 @@ int yystopparser = 0;
 %token <cadena> DECIMAL
 %token <cadena> BOOLEANO
 %token <cadena> STRING
-%token <cadena> COMPLEJO
+%token <cadena> FLOTANTE
 %token <cadena> T_ENTERO 
 %token <cadena> T_DECIMAL 
 %token <cadena> T_BOOLEANO
 %token <cadena> T_STRING
-%token <cadena> T_COMPLEJO
+%token <cadena> T_FLOTANTE
 
 %token VOID MAIN FOR WHILE IF ELIF DEFINE ID_MACRO
 %token ASIGNADOR SUMA RESTA MULTIPLICACION DIVISION AUMENTAR 
@@ -96,7 +96,7 @@ valor:          ENTERO      { $$ = $1; }
                 | DECIMAL   { $$ = $1; }
                 | BOOLEANO  { $$ = $1; }
                 | STRING    { $$ = $1; }
-                | COMPLEJO  { $$ = $1; };
+                | FLOTANTE  { $$ = $1; };
 
 /* produccion para crear una variable */
 crearvariable:    tipodato CONSTANTE                {
@@ -127,7 +127,7 @@ tipodato:         T_ENTERO      { $$=$1; }
                   | T_DECIMAL   { $$=$1; }
                   | T_BOOLEANO  { $$=$1; }
                   | T_STRING    { $$=$1; }
-                  | T_COMPLEJO  { $$=$1; };
+                  | T_FLOTANTE  { $$=$1; };
 
 /* produccion para asignar algun objeto a una variable Asignador '=' */
 asignarvalor:     ASIGNADOR aritmetico              { $$ = concat(" = ",$2); }

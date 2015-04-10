@@ -32,7 +32,7 @@ booleano "true"|"false"
 "decimal"				{yylval.cadena = "double "; return T_DECIMAL;}
 "bool"					{yylval.cadena = "bool "; return T_BOOLEANO;}
 "string"				{yylval.cadena = "String "; return T_STRING;}
-"float"				{yylval.cadena = "float "; return T_COMPLEJO;}
+"float"				{yylval.cadena = "float "; return T_FLOTANTE;}
 "define"				{return DEFINE;}
 [A-Z]+				{return ID_MACRO;}
 "+"						{return SUMA;}
@@ -54,7 +54,7 @@ booleano "true"|"false"
 {booleano}							{yylval.cadena = strdup(yytext); return BOOLEANO;}
 {numero}+							{yylval.cadena = strdup(yytext); return ENTERO;}
 {numero}+"."{numero}				{yylval.cadena = strdup(yytext); return DECIMAL;}
-{numero}+"."{numero}{numero}+		{yylval.cadena = strdup(yytext); return COMPLEJO;}
+{numero}+"."{numero}{numero}+		{yylval.cadena = strdup(yytext); return FLOTANTE;}
 "\""({caracter}|" "|{numero})*"\""	{yylval.cadena = strdup(yytext); return STRING;}
 {caracter}({caracter}|{numero})*	{yylval.cadena = strdup(yytext); return CONSTANTE;}
 "\n" 								{ linea++; }
@@ -116,20 +116,16 @@ int main(int argc,char **argv)
 	else{
 		yyin=fopen("entrada.txt","rt");
 		system("./semantico");	
-		
 	}
-	if(!yyparse()){ }
-	else {
+	if(!yyparse()){ 
 		if (SalidaSemantico()) {
-			AbrirSalida();
-		}
-		else {
-			system("rm salida.java");
+			printf("%d\n",1);
+			AbrirSalida(); 
 		}
 	}
-	
+	//system("rm salida.java");
 	system("rm SalidaSemantico");
-	//visualizacion();
+	//visualizacion(); /* tabla de simbolos */
 	fclose(yyin);
 }
 

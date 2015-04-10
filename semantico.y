@@ -31,7 +31,7 @@ int yystopparser = 0;
 %token <entero> RESTA
 %token <entero> MULTIPLICACION
 %token <entero> DIVISION
-%token <entero> COMPLEJO
+%token <entero> FLOTANTE
 %token <entero> AUMENTAR
 %token <entero> DISMINUIR
 %token <entero> MAYOR
@@ -39,7 +39,7 @@ int yystopparser = 0;
 %token <entero> IGUAL
 %token <entero> DIFERENTE
 
-%token T_ENTERO T_DECIMAL T_BOOLEANO T_COMPLEJO ASIGNADOR DEFINE
+%token T_ENTERO T_DECIMAL T_BOOLEANO T_FLOTANTE ASIGNADOR DEFINE
 %token ID_MACRO ELSE FOR WHILE IF ELIF T_STRING
 
 %start programa
@@ -94,7 +94,7 @@ valor:		        ENTERO        {$$=$1;}
                   | DECIMAL     {$$=$1;}
                   | BOOLEANO    {$$=$1;}
                   | STRING      {$$=$1;}
-                  | COMPLEJO    {$$=$1;};
+                  | FLOTANTE    {$$=$1;};
 
 /* produccion para crear una variable */
 crearvariable:    tipodato CONSTANTE  {
@@ -116,7 +116,7 @@ tipodato:         T_ENTERO      {$$=1;}
                   | T_DECIMAL   {$$=2;}
                   | T_BOOLEANO  {$$=3;}
                   | T_STRING    {$$=4;}
-                  | T_COMPLEJO  {$$=5;};
+                  | T_FLOTANTE  {$$=5;};
 
 /* produccion para asignar algun objeto a una variable Asignador '=' */
 asignarvalor:     ASIGNADOR aritmetico      {$$=$2;}
@@ -482,7 +482,7 @@ int check_operacion_logica(int operando1, int operando2, int operador) {
     }
     /* si ambos son string, hay un error */
     else if (operando1==4 || operando2==4) { 
-      printf("Error[linea %d]: no se pueden aplicar los operadores logicos < o > a datos de tipo booleanos\n", linea);
+      printf("Error[linea %d]: no se pueden aplicar los operadores logicos < o > a datos de tipo string\n", linea);
       erroresSemanticos++;
       return -1;
     }
